@@ -1,0 +1,36 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Modifier Note | SchoolVision</title></head><body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Professeur</span></div>
+  <a href="/prof/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Modifier la Note</h1><p>Le bulletin se recalcule automatiquement</p></div>
+  </div>
+  <div class="card" style="max-width:620px">
+    <div class="card-title">
+      <i class="fas fa-edit" style="color:var(--warning)"></i>
+      Note de <span th:text="${note.eleve.nom+' '+note.eleve.prenom}"></span>
+      — <span th:text="${note.matiere.nom}"></span>
+    </div>
+    <form th:action="@{/prof/notes/modifier/{id}(id=${note.id})}" method="post">
+      <div class="form-grid">
+        <div class="form-group"><label>Note 1 (/ 20)</label>
+          <input type="number" name="note1" th:value="${note.note1}" min="0" max="20" step="0.25"></div>
+        <div class="form-group"><label>Note 2 (/ 20)</label>
+          <input type="number" name="note2" th:value="${note.note2}" min="0" max="20" step="0.25"></div>
+        <div class="form-group full"><label>Note Examen (/ 20)</label>
+          <input type="number" name="noteExamen" th:value="${note.noteExamen}" min="0" max="20" step="0.25"></div>
+      </div>
+      <div style="margin-top:24px;display:flex;gap:14px">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Sauvegarder</button>
+        <a th:href="@{/prof/classe/{id}/notes(id=${note.classe.id})}" class="btn" style="background:#f1f5f9;color:var(--text)">
+          <i class="fas fa-times"></i> Annuler
+        </a>
+      </div>
+    </form>
+  </div>
+</div></body></html>

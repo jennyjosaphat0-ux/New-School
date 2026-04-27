@@ -1,0 +1,21 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Élèves | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Secrétariat</span></div><a href="/secretaire/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a><div class="nav-section">Élèves</div><a href="/secretaire/eleve/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Inscrire un Élève</a><a href="/secretaire/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Liste par Classe</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar"><div><h1>Élèves par Classe</h1><p>Sélectionnez une classe</p></div>
+    <a href="/secretaire/eleve/nouveau" class="btn btn-success"><i class="fas fa-plus"></i> Inscrire</a>
+  </div>
+  <div class="sec-header">Primaire</div>
+  <div class="grid-classes">
+    <a th:each="cl : ${classes}" th:if="${cl.nomClasse.contains('Année')}"
+       th:href="@{/secretaire/eleves/classe/{id}(id=${cl.id})}" class="class-card">
+      <div class="cc-icon">📖</div><h4 th:text="${cl.nomClasse}"></h4><p>Voir élèves</p>
+    </a>
+  </div>
+  <div class="sec-header" style="margin-top:28px">Secondaire</div>
+  <div class="grid-classes">
+    <a th:each="cl : ${classes}" th:unless="${cl.nomClasse.contains('Année')}"
+       th:href="@{/secretaire/eleves/classe/{id}(id=${cl.id})}" class="class-card">
+      <div class="cc-icon">🎓</div><h4 th:text="${cl.nomClasse}"></h4><p>Voir élèves</p>
+    </a>
+  </div>
+</div></body></html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Élèves | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Administration</span></div><a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a><div class="nav-section">Personnel</div><a href="/admin/prof/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Ajouter Professeur</a><a href="/admin/prof/liste" class="nav-link"><i class="fas fa-users"></i> Liste Professeurs</a><a href="/admin/secretaire/nouveau" class="nav-link"><i class="fas fa-user-tie"></i> Ajouter Secrétaire</a><a href="/admin/secretaire/liste" class="nav-link"><i class="fas fa-id-card"></i> Liste Secrétaires</a><div class="nav-section">Élèves</div><a href="/admin/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Élèves par Classe</a><div class="nav-section">Académique</div><a href="/admin/notes" class="nav-link"><i class="fas fa-star-half-alt"></i> Notes</a><a href="/admin/bulletins" class="nav-link"><i class="fas fa-file-invoice"></i> Bulletins</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar">
+    <div><h1 th:text="'Classe : '+${classe.nomClasse}">Classe</h1><p>Liste complète des élèves</p></div>
+    <a href="/admin/eleves" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-arrow-left"></i> Retour</a>
+  </div>
+  <div th:if="${success}" class="alert alert-success"><i class="fas fa-check-circle"></i><span th:text="${success}"></span></div>
+  <div class="card">
+    <table>
+      <thead><tr><th>#</th><th>Élève</th><th>Email</th><th>Âge</th><th>Parent</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr th:each="e,i : ${eleves}">
+          <td th:text="${i.count}"></td>
+          <td><div class="td-user">
+            <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669)"
+              th:text="${#strings.substring(e.prenom,0,1)}+${#strings.substring(e.nom,0,1)}">AB</div>
+            <div><strong th:text="${e.nom+' '+e.prenom}"></strong></div>
+          </div></td>
+          <td th:text="${e.email}"></td>
+          <td th:text="${e.age}+' ans'"></td>
+          <td th:text="${e.nomParent}"></td>
+          <td>
+            <span class="tag tag-danger" th:if="${e.exclu}">Exclu</span>
+            <span class="tag tag-success" th:unless="${e.exclu}">Actif</span>
+          </td>
+          <td style="display:flex;gap:8px">
+            <a th:href="@{/admin/eleves/{id}(id=${e.id})}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></a>
+            <form th:action="@{/admin/eleves/exclure/{id}(id=${e.id})}" method="post"
+              onsubmit="return confirm('Exclure cet élève ?')" th:unless="${e.exclu}">
+              <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-user-slash"></i></button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(eleves)}">
+          <td colspan="7" style="text-align:center;color:var(--muted);padding:40px">
+            <i class="fas fa-user-slash" style="font-size:2rem;display:block;margin-bottom:10px"></i>Aucun élève dans cette classe.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div></body></html>

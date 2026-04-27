@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Ajouter Professeur | SchoolVision</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+  .niveau-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
+  .niveau-card{border:2px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:0.2s;text-align:center}
+  .niveau-card:hover{border-color:var(--primary)}
+  .niveau-card input[type=radio]{display:none}
+  .niveau-card.selected{border-color:var(--primary);background:#eff6ff}
+  .niveau-card .nc-icon{font-size:1.8rem;margin-bottom:8px}
+  .niveau-card strong{display:block;font-size:0.95rem;color:var(--text)}
+  .niveau-card span{font-size:0.75rem;color:var(--muted)}
+  .classes-box{display:none;margin-top:18px}
+  .classes-box.show{display:block}
+  .multi-check{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .chk-item{display:flex;align-items:center;gap:8px;padding:9px 12px;
+    background:#f8fafc;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;transition:0.2s}
+  .chk-item:hover{border-color:var(--primary);background:#eff6ff}
+  .chk-item input{accent-color:var(--primary)}
+  .chk-item label{font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Administration</span></div>
+  <a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Personnel</div>
+  <a href="/admin/prof/nouveau" class="nav-link active"><i class="fas fa-user-plus"></i> Ajouter Professeur</a>
+  <a href="/admin/prof/liste" class="nav-link"><i class="fas fa-users"></i> Liste Professeurs</a>
+  <a href="/admin/secretaire/nouveau" class="nav-link"><i class="fas fa-user-tie"></i> Ajouter Secrétaire</a>
+  <a href="/admin/secretaire/liste" class="nav-link"><i class="fas fa-id-card"></i> Liste Secrétaires</a>
+  <div class="nav-section">Élèves</div>
+  <a href="/admin/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Élèves par Classe</a>
+  <div class="nav-section">Académique</div>
+  <a href="/admin/notes" class="nav-link"><i class="fas fa-star-half-alt"></i> Notes</a>
+  <a href="/admin/bulletins" class="nav-link"><i class="fas fa-file-invoice"></i> Bulletins</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Enregistrer un Professeur</h1><p>Remplissez les informations — le code sera envoyé par mail</p></div>
+    <span class="badge badge-admin">🔑 ADMIN</span>
+  </div>
+  <div th:if="${success}" class="alert alert-success"><i class="fas fa-check-circle"></i> <span th:text="${success}"></span></div>
+
+  <div class="card">
+    <div class="card-title"><i class="fas fa-user-plus" style="color:var(--primary)"></i> Informations du Professeur</div>
+    <form th:action="@{/admin/prof/sauvegarder}" th:object="${professeur}" method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" th:field="*{nom}" placeholder="DUPONT" required>
+        </div>
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" th:field="*{prenom}" placeholder="Jean" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" th:field="*{email}" placeholder="prof@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input type="tel" th:field="*{telephone}" placeholder="+509 XXXX XXXX">
+        </div>
+        <div class="form-group full">
+          <label>Adresse</label>
+          <input type="text" th:field="*{adresse}" placeholder="Adresse du professeur">
+        </div>
+
+        <!-- NIVEAU -->
+        <div class="form-group full">
+          <label>Niveau d'enseignement</label>
+          <div class="niveau-cards">
+            <div class="niveau-card" id="card-prim" onclick="selectNiveau('Primaire')">
+              <div class="nc-icon">📖</div>
+              <strong>Primaire</strong>
+              <span>1ère Année → 6ème Année</span>
+              <input type="radio" name="niveauSel" value="Primaire">
+            </div>
+            <div class="niveau-card" id="card-sec" onclick="selectNiveau('Secondaire')">
+              <div class="nc-icon">🎓</div>
+              <strong>Secondaire</strong>
+              <span>NS1 → NS4</span>
+              <input type="radio" name="niveauSel" value="Secondaire">
+            </div>
+          </div>
+          <input type="hidden" th:field="*{niveau}" id="niveauHidden">
+        </div>
+
+        <!-- CLASSE -->
+        <div class="form-group full">
+          <label>Classe assignée</label>
+          <select name="classeId" required>
+            <option value="">-- Sélectionner une classe --</option>
+            <option th:each="cl : ${classes}" th:value="${cl.id}" th:text="${cl.nomClasse}"></option>
+          </select>
+        </div>
+
+        <!-- MATIERE -->
+        <div class="form-group full">
+          <label>Matière enseignée</label>
+          <select name="matiereId">
+            <option value="">-- Sélectionner une matière --</option>
+            <option th:each="m : ${matieres}" th:value="${m.id}" th:text="${m.nom}"></option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre d'heures / semaine</label>
+          <input type="number" name="nbreHeures" placeholder="Ex: 4" min="1" max="40">
+        </div>
+      </div>
+
+      <div style="margin-top:28px;display:flex;gap:14px">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-paper-plane"></i> Enregistrer &amp; Envoyer le code
+        </button>
+        <a href="/admin/prof/liste" class="btn" style="background:#f1f5f9;color:var(--text)">
+          <i class="fas fa-times"></i> Annuler
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function selectNiveau(n) {
+  document.getElementById('card-prim').classList.toggle('selected', n==='Primaire');
+  document.getElementById('card-sec').classList.toggle('selected', n==='Secondaire');
+  document.getElementById('niveauHidden').value = n;
+}
+</script>
+</body></html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Fiche Élève | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Administration</span></div><a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a><div class="nav-section">Personnel</div><a href="/admin/prof/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Ajouter Professeur</a><a href="/admin/prof/liste" class="nav-link"><i class="fas fa-users"></i> Liste Professeurs</a><a href="/admin/secretaire/nouveau" class="nav-link"><i class="fas fa-user-tie"></i> Ajouter Secrétaire</a><a href="/admin/secretaire/liste" class="nav-link"><i class="fas fa-id-card"></i> Liste Secrétaires</a><div class="nav-section">Élèves</div><a href="/admin/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Élèves par Classe</a><div class="nav-section">Académique</div><a href="/admin/notes" class="nav-link"><i class="fas fa-star-half-alt"></i> Notes</a><a href="/admin/bulletins" class="nav-link"><i class="fas fa-file-invoice"></i> Bulletins</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Fiche de l'Élève</h1><p>Informations personnelles et académiques</p></div>
+    <a href="/admin/eleves" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-arrow-left"></i> Retour</a>
+  </div>
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:24px">
+    <div>
+      <div class="card" style="text-align:center;margin-bottom:20px">
+        <div class="avatar" style="width:80px;height:80px;font-size:2rem;margin:0 auto 16px;background:linear-gradient(135deg,#10b981,#3b82f6)"
+          th:text="${#strings.substring(eleve.prenom,0,1)}+${#strings.substring(eleve.nom,0,1)}">AB</div>
+        <h3 th:text="${eleve.nom+' '+eleve.prenom}" style="font-size:1.1rem;font-weight:800"></h3>
+        <p style="color:var(--muted);font-size:0.82rem;margin-top:4px" th:text="${eleve.classe?.nomClasse}"></p>
+        <span class="tag tag-danger" th:if="${eleve.exclu}" style="margin-top:12px">Exclu</span>
+        <span class="tag tag-success" th:unless="${eleve.exclu}" style="margin-top:12px">Actif</span>
+      </div>
+      <div class="card">
+        <div class="card-title">Informations</div>
+        <div style="display:flex;flex-direction:column;gap:14px;font-size:0.875rem">
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Email</span><strong th:text="${eleve.email}"></strong></div>
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Date de naissance</span><strong th:text="${eleve.dateNaissance}"></strong></div>
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Âge</span><strong th:text="${eleve.age}+' ans'"></strong></div>
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Adresse</span><strong th:text="${eleve.adresse}"></strong></div>
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Parent / Tuteur</span><strong th:text="${eleve.nomParent}"></strong></div>
+          <div><span style="color:var(--muted);font-size:0.75rem;display:block">Email parent</span><strong th:text="${eleve.emailParent}"></strong></div>
+        </div>
+        <form th:action="@{/admin/eleves/exclure/{id}(id=${eleve.id})}" method="post"
+          onsubmit="return confirm('Exclure cet élève définitivement ?')" th:unless="${eleve.exclu}" style="margin-top:20px">
+          <button type="submit" class="btn btn-danger" style="width:100%"><i class="fas fa-user-slash"></i> Exclure l'élève</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-star" style="color:var(--warning)"></i> Notes de l'élève</div>
+      <table>
+        <thead><tr><th>Matière</th><th>Note 1</th><th>Note 2</th><th>Examen</th><th>Moyenne</th><th>Mention</th><th>Trimestre</th></tr></thead>
+        <tbody>
+          <tr th:each="n : ${notes}">
+            <td><strong th:text="${n.matiere.nom}"></strong></td>
+            <td th:text="${n.note1 ?: '-'}"></td>
+            <td th:text="${n.note2 ?: '-'}"></td>
+            <td th:text="${n.noteExamen ?: '-'}"></td>
+            <td><strong th:text="${n.moyenne ?: '-'}"></strong></td>
+            <td><span class="tag"
+              th:classappend="${n.moyenne != null and n.moyenne >= 10} ? 'tag-success' : 'tag-danger'"
+              th:text="${n.mention}"></span></td>
+            <td th:text="'T'+${n.trimestre}"></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(notes)}">
+            <td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Aucune note disponible.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div></body></html>

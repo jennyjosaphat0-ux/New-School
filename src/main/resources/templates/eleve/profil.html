@@ -1,0 +1,37 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Mon Profil | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Espace Élève</span></div><a href="/eleve/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Mon Tableau de Bord</a><div class="nav-section">Académique</div><a href="/eleve/notes" class="nav-link"><i class="fas fa-star"></i> Mes Notes</a><a href="/eleve/bulletin" class="nav-link"><i class="fas fa-file-alt"></i> Mon Bulletin</a><div class="nav-section">Compte</div><a href="/eleve/profil" class="nav-link"><i class="fas fa-user"></i> Mon Profil</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar"><div><h1>Mon Profil</h1><p>Mes informations personnelles</p></div>
+    <span class="badge badge-eleve">🎓 ÉLÈVE</span></div>
+  <div class="card" style="max-width:580px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="avatar" style="width:90px;height:90px;font-size:2.2rem;margin:0 auto 16px;background:linear-gradient(135deg,#3b82f6,#8b5cf6)"
+        th:text="${#strings.substring(eleve.prenom,0,1)}+${#strings.substring(eleve.nom,0,1)}">AB</div>
+      <h2 th:text="${eleve.nom+' '+eleve.prenom}" style="font-size:1.3rem;font-weight:800"></h2>
+      <p style="color:var(--muted);margin-top:5px" th:text="${eleve.classe?.nomClasse}"></p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Email</label>
+          <strong th:text="${eleve.email}"></strong></div>
+        <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Date de Naissance</label>
+          <strong th:text="${eleve.dateNaissance}"></strong></div>
+        <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Âge</label>
+          <strong th:text="${eleve.age}+' ans'"></strong></div>
+        <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Classe</label>
+          <strong th:text="${eleve.classe?.nomClasse ?: '-'}"></strong></div>
+        <div style="grid-column:1/-1"><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Adresse</label>
+          <strong th:text="${eleve.adresse ?: '-'}"></strong></div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border)">
+      <div><h4 style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:var(--muted)">INFORMATIONS PARENT / TUTEUR</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Nom</label>
+            <strong th:text="${eleve.nomParent ?: '-'}"></strong></div>
+          <div><label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px">Email</label>
+            <strong th:text="${eleve.emailParent ?: '-'}"></strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>

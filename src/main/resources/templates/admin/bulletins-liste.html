@@ -1,0 +1,39 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Bulletins Classe | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Administration</span></div><a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a><div class="nav-section">Personnel</div><a href="/admin/prof/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Ajouter Professeur</a><a href="/admin/prof/liste" class="nav-link"><i class="fas fa-users"></i> Liste Professeurs</a><a href="/admin/secretaire/nouveau" class="nav-link"><i class="fas fa-user-tie"></i> Ajouter Secrétaire</a><a href="/admin/secretaire/liste" class="nav-link"><i class="fas fa-id-card"></i> Liste Secrétaires</a><div class="nav-section">Élèves</div><a href="/admin/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Élèves par Classe</a><div class="nav-section">Académique</div><a href="/admin/notes" class="nav-link"><i class="fas fa-star-half-alt"></i> Notes</a><a href="/admin/bulletins" class="nav-link"><i class="fas fa-file-invoice"></i> Bulletins</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar">
+    <div><h1 th:text="'Bulletins — '+${classe.nomClasse}">Bulletins</h1></div>
+    <a href="/admin/bulletins" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-arrow-left"></i> Retour</a>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <form style="display:flex;align-items:center;gap:16px">
+      <label style="font-weight:700;font-size:0.85rem">Trimestre :</label>
+      <select name="trimestre" onchange="this.form.submit()" style="padding:8px 14px;border-radius:8px;border:1.5px solid var(--border)">
+        <option th:each="t : ${#numbers.sequence(1,3)}" th:value="${t}"
+          th:text="'Trimestre '+${t}" th:selected="${t == trimestre}"></option>
+      </select>
+    </form>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>#</th><th>Élève</th><th>Classe</th><th>Moyenne Générale</th><th>Mention</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr th:each="e,i : ${eleves}">
+          <td th:text="${i.count}"></td>
+          <td><strong th:text="${e.nom+' '+e.prenom}"></strong></td>
+          <td th:text="${classe.nomClasse}"></td>
+          <td><strong th:text="${noteService.getMoyenneGenerale(e.id, trimestre)}"></strong></td>
+          <td>
+            <span class="tag tag-success" th:if="${noteService.getMoyenneGenerale(e.id,trimestre) >= 10}">Admis</span>
+            <span class="tag tag-danger" th:unless="${noteService.getMoyenneGenerale(e.id,trimestre) >= 10}">En difficulté</span>
+          </td>
+          <td>
+            <a th:href="@{/admin/eleves/{id}(id=${e.id})}" class="btn btn-primary btn-sm">
+              <i class="fas fa-file-alt"></i> Voir fiche
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div></body></html>

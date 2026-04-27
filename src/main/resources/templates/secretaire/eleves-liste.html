@@ -1,0 +1,36 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Liste Élèves | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Secrétariat</span></div><a href="/secretaire/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a><div class="nav-section">Élèves</div><a href="/secretaire/eleve/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Inscrire un Élève</a><a href="/secretaire/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Liste par Classe</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar">
+    <div><h1 th:text="'Élèves — '+${classe.nomClasse}">Élèves</h1></div>
+    <div style="display:flex;gap:12px">
+      <a href="/secretaire/eleve/nouveau" class="btn btn-success"><i class="fas fa-plus"></i> Inscrire</a>
+      <a href="/secretaire/eleves" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-arrow-left"></i> Retour</a>
+    </div>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>#</th><th>Élève</th><th>Email</th><th>Âge</th><th>Date Naissance</th><th>Parent</th><th>Code</th><th>Statut</th></tr></thead>
+      <tbody>
+        <tr th:each="e,i : ${eleves}">
+          <td th:text="${i.count}"></td>
+          <td><div class="td-user">
+            <div class="avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)"
+              th:text="${#strings.substring(e.prenom,0,1)}+${#strings.substring(e.nom,0,1)}">AB</div>
+            <strong th:text="${e.nom+' '+e.prenom}"></strong>
+          </div></td>
+          <td th:text="${e.email}"></td>
+          <td th:text="${e.age}+' ans'"></td>
+          <td th:text="${e.dateNaissance}"></td>
+          <td th:text="${e.nomParent}"></td>
+          <td><code style="background:#f1f5f9;padding:3px 8px;border-radius:6px;font-size:0.78rem" th:text="${e.codeConnexion}"></code></td>
+          <td><span class="tag tag-danger" th:if="${e.exclu}">Exclu</span>
+            <span class="tag tag-success" th:unless="${e.exclu}">Actif</span></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(eleves)}">
+          <td colspan="8" style="text-align:center;color:var(--muted);padding:40px">Aucun élève inscrit dans cette classe.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div></body></html>

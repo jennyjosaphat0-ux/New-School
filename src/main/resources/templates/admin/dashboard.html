@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Dashboard Admin | SchoolVision</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Administration</span></div>
+  <a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Personnel</div>
+  <a href="/admin/prof/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Ajouter Professeur</a>
+  <a href="/admin/prof/liste" class="nav-link"><i class="fas fa-users"></i> Liste Professeurs</a>
+  <a href="/admin/secretaire/nouveau" class="nav-link"><i class="fas fa-user-tie"></i> Ajouter Secrétaire</a>
+  <a href="/admin/secretaire/liste" class="nav-link"><i class="fas fa-id-card"></i> Liste Secrétaires</a>
+  <div class="nav-section">Élèves</div>
+  <a href="/admin/eleves" class="nav-link"><i class="fas fa-graduation-cap"></i> Élèves par Classe</a>
+  <div class="nav-section">Académique</div>
+  <a href="/admin/notes" class="nav-link"><i class="fas fa-star-half-alt"></i> Notes</a>
+  <a href="/admin/bulletins" class="nav-link"><i class="fas fa-file-invoice"></i> Bulletins</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Tableau de Bord</h1><p>Bienvenue, Monsieur le Directeur 👋</p></div>
+    <span class="badge badge-admin">🔑 ADMIN</span>
+  </div>
+  <div th:if="${success}" class="alert alert-success"><i class="fas fa-check-circle"></i> <span th:text="${success}"></span></div>
+  <div class="stats">
+    <div class="stat">
+      <div><div class="stat-lbl">Professeurs</div><div class="stat-num" th:text="${totalProfs}">0</div></div>
+      <div class="stat-icon" style="background:#e0e7ff;color:#4338ca"><i class="fas fa-chalkboard-teacher"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Secrétaires</div><div class="stat-num" th:text="${totalSecretaires}">0</div></div>
+      <div class="stat-icon" style="background:#fef3c7;color:#b45309"><i class="fas fa-user-tie"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Élèves</div><div class="stat-num" th:text="${totalEleves}">0</div></div>
+      <div class="stat-icon" style="background:#dcfce7;color:#15803d"><i class="fas fa-graduation-cap"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Classes</div><div class="stat-num" th:text="${totalClasses}">0</div></div>
+      <div class="stat-icon" style="background:#ffe4e6;color:#be123c"><i class="fas fa-door-open"></i></div>
+    </div>
+  </div>
+  <div class="card-title">Actions Rapides</div>
+  <div class="actions">
+    <a href="/admin/prof/nouveau" class="action-card"><span class="a-icon">👨‍🏫</span><h4>Nouveau Professeur</h4><p>Enregistrer, choisir niveau, classe, matière — code envoyé par mail</p></a>
+    <a href="/admin/secretaire/nouveau" class="action-card"><span class="a-icon">🗂️</span><h4>Nouveau Secrétaire</h4><p>Créer un compte secrétaire avec code d'accès automatique</p></a>
+    <a href="/admin/eleves" class="action-card"><span class="a-icon">📚</span><h4>Élèves par Classe</h4><p>Voir les listes de la 1ère Année jusqu'à NS4</p></a>
+    <a href="/admin/notes" class="action-card"><span class="a-icon">📊</span><h4>Notes & Moyennes</h4><p>Voir toutes les notes par classe et les moyennes</p></a>
+    <a href="/admin/bulletins" class="action-card"><span class="a-icon">📄</span><h4>Bulletins</h4><p>Consulter tous les bulletins séparément par classe</p></a>
+    <a href="/admin/prof/liste" class="action-card" style="border-left:4px solid #ef4444"><span class="a-icon">🚫</span><h4>Révoquer / Exclure</h4><p>Désactiver un professeur, secrétaire ou exclure un élève</p></a>
+  </div>
+</div>
+</body></html>

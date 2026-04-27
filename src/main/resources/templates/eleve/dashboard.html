@@ -1,0 +1,31 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Mon Espace | SchoolVision</title></head><body>
+<div class="sidebar"><div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Espace Élève</span></div><a href="/eleve/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Mon Tableau de Bord</a><div class="nav-section">Académique</div><a href="/eleve/notes" class="nav-link"><i class="fas fa-star"></i> Mes Notes</a><a href="/eleve/bulletin" class="nav-link"><i class="fas fa-file-alt"></i> Mon Bulletin</a><div class="nav-section">Compte</div><a href="/eleve/profil" class="nav-link"><i class="fas fa-user"></i> Mon Profil</a><div class="sidebar-footer"><form action="/logout" method="post"><button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button></form></div></div>
+<div class="main">
+  <div class="topbar">
+    <div><h1 th:text="'Bonjour, '+${eleve.prenom}+' 👋'">Bonjour</h1>
+      <p th:text="'Classe : '+${eleve.classe?.nomClasse ?: 'Non assignée'}"></p></div>
+    <span class="badge badge-eleve">🎓 ÉLÈVE</span>
+  </div>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr);max-width:720px">
+    <div class="stat">
+      <div><div class="stat-lbl">Moy. T1</div>
+        <div class="stat-num" th:text="${moyenne1 != null ? #numbers.formatDecimal(moyenne1,1,2) : '-'}"></div></div>
+      <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8"><i class="fas fa-star"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Moy. T2</div>
+        <div class="stat-num" th:text="${moyenne2 != null ? #numbers.formatDecimal(moyenne2,1,2) : '-'}"></div></div>
+      <div class="stat-icon" style="background:#dcfce7;color:#15803d"><i class="fas fa-star"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Moy. T3</div>
+        <div class="stat-num" th:text="${moyenne3 != null ? #numbers.formatDecimal(moyenne3,1,2) : '-'}"></div></div>
+      <div class="stat-icon" style="background:#fef3c7;color:#b45309"><i class="fas fa-star"></i></div>
+    </div>
+  </div>
+  <div class="actions" style="grid-template-columns:repeat(3,1fr)">
+    <a href="/eleve/notes" class="action-card"><span class="a-icon">⭐</span><h4>Mes Notes</h4><p>Consulter mes notes par trimestre et par matière</p></a>
+    <a href="/eleve/bulletin" class="action-card"><span class="a-icon">📄</span><h4>Mon Bulletin</h4><p>Voir et imprimer mon bulletin de notes</p></a>
+    <a href="/eleve/profil" class="action-card"><span class="a-icon">👤</span><h4>Mon Profil</h4><p>Voir mes informations personnelles</p></a>
+  </div>
+</div></body></html>

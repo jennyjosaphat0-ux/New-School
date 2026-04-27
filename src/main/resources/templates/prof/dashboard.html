@@ -1,0 +1,45 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" th:href="@{/css/style.css}"><title>Dashboard Professeur | SchoolVision</title></head><body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 SCHOOLVISION</h2><span>Professeur</span></div>
+  <a href="/prof/dashboard" class="nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Mes Classes</div>
+  <a th:each="aff : ${affectations}"
+     th:href="@{/prof/classe/{id}/notes(id=${aff.classe.id})}"
+     class="nav-link">
+    <i class="fas fa-door-open"></i> <span th:text="${aff.classe.nomClasse}"></span>
+  </a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1 th:text="'Bonjour, Prof. '+${prof.nom}+' 👋'">Bonjour</h1>
+      <p th:text="'Niveau : '+${prof.niveau}"></p></div>
+    <span class="badge badge-prof">📚 PROFESSEUR</span>
+  </div>
+  <div class="stats" style="grid-template-columns:repeat(2,1fr);max-width:520px">
+    <div class="stat">
+      <div><div class="stat-lbl">Classes Assignées</div><div class="stat-num" th:text="${totalClasses}">0</div></div>
+      <div class="stat-icon" style="background:#dcfce7;color:#15803d"><i class="fas fa-door-open"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-lbl">Niveau</div><div class="stat-num" style="font-size:1.1rem;margin-top:10px" th:text="${prof.niveau}">-</div></div>
+      <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8"><i class="fas fa-graduation-cap"></i></div>
+    </div>
+  </div>
+  <div class="card-title">Mes Classes — Cliquez pour saisir les notes</div>
+  <div class="actions" style="grid-template-columns:repeat(2,1fr)">
+    <a th:each="aff : ${affectations}"
+       th:href="@{/prof/classe/{id}/notes(id=${aff.classe.id})}"
+       class="action-card">
+      <span class="a-icon">🏫</span>
+      <h4 th:text="${aff.classe.nomClasse}"></h4>
+      <p th:text="${aff.matiere?.nom ?: 'Matière non définie'}+' — '+${aff.nbreHeures}+'h/sem'"></p>
+    </a>
+  </div>
+  <div th:if="${#lists.isEmpty(affectations)}" class="card" style="text-align:center;padding:48px;color:var(--muted)">
+    <i class="fas fa-inbox" style="font-size:2.5rem;display:block;margin-bottom:12px"></i>
+    Aucune classe assignée. Contactez l'administration.
+  </div>
+</div></body></html>
