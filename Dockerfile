@@ -1,5 +1,5 @@
 # Etap 1: Build pwojè a ak Maven
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.8.5-openjdk-21 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
