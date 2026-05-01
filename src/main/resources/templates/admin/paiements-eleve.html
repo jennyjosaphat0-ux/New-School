@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<title>Paiements Élève | NewScool</title>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img th:src="@{/images/logo.png}" alt="Logo" style="width:44px;height:44px;object-fit:contain;border-radius:8px">
+    <div><h2>NEW SCOOL</h2><span>Administration</span></div>
+  </div>
+  <a href="/admin/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <a href="/admin/paiements" class="nav-link"><i class="fas fa-money-bill-wave"></i> Historique Paiements</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1 th:text="${eleve.nom+' '+eleve.prenom}">Élève</h1>
+      <p th:text="'Classe : '+${eleve.classe?.nomClasse}+' — Statut: '+${statutResume}"></p>
+    </div>
+    <a href="/admin/paiements" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-arrow-left"></i> Retour</a>
+  </div>
+
+  <!-- Statut badge -->
+  <div style="margin-bottom:20px">
+    <div class="alert alert-success" th:if="${statutResume == 'Paiement effectué'}">
+      <i class="fas fa-check-circle"></i> <strong th:text="${statutResume}"></strong>
+    </div>
+    <div style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:13px 18px;border-radius:10px"
+         th:if="${statutResume == 'Paiement en cours'}">
+      <i class="fas fa-clock"></i> <strong th:text="${statutResume}"></strong>
+    </div>
+    <div class="alert alert-danger" th:if="${statutResume == 'Non effectué'}">
+      <i class="fas fa-exclamation-triangle"></i> <strong th:text="${statutResume}"></strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Détail des Paiements</div>
+    <table>
+      <thead><tr><th>Type</th><th>Montant</th><th>Statut</th><th>Date Création</th><th>Date Paiement</th></tr></thead>
+      <tbody>
+        <tr th:each="p : ${paiements}">
+          <td><strong th:text="${p.typePaiementLabel}"></strong></td>
+          <td th:text="${p.montant}+' gdes'"></td>
+          <td>
+            <span class="tag tag-success" th:if="${p.statut.name()=='PAYE'}">✅ Payé</span>
+            <span class="tag tag-warning" th:if="${p.statut.name()=='EN_ATTENTE'}">⏳ En attente</span>
+            <span class="tag tag-danger"  th:if="${p.statut.name()=='ECHOUE'}">❌ Échoué</span>
+          </td>
+          <td th:text="${p.dateCreation != null ? p.dateCreation : '-'}"></td>
+          <td th:text="${p.datePaiement != null ? p.datePaiement : '-'}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script th:src="@{/js/responsive.js}"></script>
+</body></html>

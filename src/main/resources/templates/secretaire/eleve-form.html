@@ -1,150 +1,99 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" th:href="@{/css/style.css}">
-<title>Inscrire Élève | SchoolVision</title>
+<title>Inscrire Élève | NewScool</title>
 </head>
-
 <body>
-
 <div class="sidebar">
   <div class="sidebar-logo">
-    <h2>🏫 SCHOOLVISION</h2>
-    <span>Secrétariat</span>
+    <img th:src="@{/images/logo.png}" alt="Logo" style="width:44px;height:44px;object-fit:contain;border-radius:8px">
+    <div><h2>NEW SCOOL</h2><span>Secrétariat</span></div>
   </div>
-
-  <a href="/secretaire/dashboard" class="nav-link">
-    <i class="fas fa-chart-pie"></i> Dashboard
-  </a>
-
+  <a href="/secretaire/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
   <div class="nav-section">Élèves</div>
-
-  <a href="/secretaire/eleve/nouveau" class="nav-link">
-    <i class="fas fa-user-plus"></i> Inscrire un Élève
-  </a>
-
-  <a href="/secretaire/eleves" class="nav-link">
-    <i class="fas fa-graduation-cap"></i> Liste par Classe
-  </a>
-
-  <div class="sidebar-footer">
-    <form action="/logout" method="post">
-      <button class="btn-logout">
-        <i class="fas fa-power-off"></i> Déconnexion
-      </button>
-    </form>
-  </div>
+  <a href="/secretaire/eleve/nouveau" class="nav-link active"><i class="fas fa-user-plus"></i> Inscrire un Élève</a>
+  <a href="/secretaire/eleves/liste" class="nav-link"><i class="fas fa-graduation-cap"></i> Liste Élèves</a>
+  <div class="nav-section">Paiements</div>
+  <a href="/secretaire/paiements" class="nav-link"><i class="fas fa-money-bill-wave"></i> Historique Paiements</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
 </div>
-
 <div class="main">
-
   <div class="topbar">
-    <div>
-      <h1>Inscrire un Élève</h1>
-      <p>Le code d'accès sera envoyé à l'élève et au parent par mail</p>
-    </div>
+    <div><h1>Inscrire un Élève</h1><p>Frais d'inscription : <strong>1 000 gourdes</strong> — Code envoyé par mail automatiquement</p></div>
     <span class="badge badge-sec">🗂️ SECRÉTAIRE</span>
   </div>
-
-  <div th:if="${success}" class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
-    <span th:text="${success}"></span>
-  </div>
+  <div th:if="${success}" class="alert alert-success"><i class="fas fa-check-circle"></i> <span th:text="${success}"></span></div>
+  <div th:if="${error}" class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span></div>
 
   <div class="card">
-    <div class="card-title">
-      <i class="fas fa-user-plus" style="color:var(--success)"></i>
-      Informations de l'Élève
-    </div>
-
+    <div class="card-title"><i class="fas fa-user-plus" style="color:var(--success)"></i> Informations de l'Élève</div>
     <form th:action="@{/secretaire/eleve/sauvegarder}" th:object="${eleve}" method="post">
-
       <div class="form-grid">
-
-        <div class="form-group">
-          <label>Nom</label>
-          <input type="text" th:field="*{nom}" placeholder="JEAN" required>
-        </div>
-
-        <div class="form-group">
-          <label>Prénom</label>
-          <input type="text" th:field="*{prenom}" placeholder="Pierre" required>
-        </div>
-
-        <!-- ✅ SEXE AJOUTE -->
+        <div class="form-group"><label>Nom</label><input type="text" th:field="*{nom}" placeholder="JEAN" required></div>
+        <div class="form-group"><label>Prénom</label><input type="text" th:field="*{prenom}" placeholder="Pierre" required></div>
         <div class="form-group">
           <label>Sexe</label>
           <select th:field="*{sexe}" required>
-            <option value="">-- Choisir le sexe --</option>
+            <option value="">-- Choisir --</option>
             <option value="MASCULIN">Masculin</option>
             <option value="FEMININ">Féminin</option>
-            <option value="AUTRE">Autre</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label>Email Élève</label>
-          <input type="email" th:field="*{email}" placeholder="eleve@email.com">
-        </div>
-
         <div class="form-group">
           <label>Date de Naissance</label>
           <input type="date" th:field="*{dateNaissance}" required>
-          <small style="color:var(--muted);font-size:0.75rem">
-            L'âge sera calculé automatiquement
-          </small>
         </div>
-
-        <div class="form-group full">
-          <label>Adresse</label>
-          <input type="text" th:field="*{adresse}" placeholder="Adresse complète">
-        </div>
-
+        <div class="form-group"><label>Email Élève</label><input type="email" th:field="*{email}" placeholder="eleve@email.com"></div>
         <div class="form-group">
           <label>Classe</label>
           <select name="classeId" required>
-            <option value="">-- Choisir une classe --</option>
-            <option th:each="cl : ${classes}"
-                    th:value="${cl.id}"
-                    th:text="${cl.nomClasse}">
-            </option>
+            <option value="">-- Choisir --</option>
+            <option th:each="cl : ${classes}" th:value="${cl.id}" th:text="${cl.nomClasse}"></option>
           </select>
         </div>
+        <div class="form-group full"><label>Adresse</label><input type="text" th:field="*{adresse}" placeholder="Adresse complète"></div>
+      </div>
 
+      <div style="margin:24px 0 14px;font-weight:700;font-size:0.95rem;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:10px">
+        <i class="fas fa-users" style="color:var(--primary)"></i> Informations des Parents
+        <span style="font-size:0.75rem;font-weight:400;color:var(--muted);margin-left:8px">Mettez au moins un parent</span>
+      </div>
+
+      <div class="form-grid">
         <div class="form-group">
-          <label>Nom du Parent / Tuteur</label>
-          <input type="text" th:field="*{nomParent}" placeholder="JEAN Paul">
+          <label>Nom du Père</label>
+          <input type="text" th:field="*{nomPere}" placeholder="JEAN">
         </div>
-
         <div class="form-group">
-          <label>Email du Parent</label>
+          <label>Prénom du Père</label>
+          <input type="text" th:field="*{prenomPere}" placeholder="Paul">
+        </div>
+        <div class="form-group">
+          <label>Nom de la Mère</label>
+          <input type="text" th:field="*{nomMere}" placeholder="PAUL">
+        </div>
+        <div class="form-group">
+          <label>Prénom de la Mère</label>
+          <input type="text" th:field="*{prenomMere}" placeholder="Marie">
+        </div>
+        <div class="form-group full">
+          <label>Email Parent <span style="color:var(--danger)">*</span> <small style="font-weight:400;color:var(--muted)">(Requis si élève Primaire — le code sera envoyé ici)</small></label>
           <input type="email" th:field="*{emailParent}" placeholder="parent@email.com">
-          <small style="color:var(--muted);font-size:0.75rem">
-            Le code sera aussi envoyé au parent
-          </small>
         </div>
-
       </div>
 
-      <div style="margin-top:28px;display:flex;gap:14px">
-
-        <button type="submit" class="btn btn-success">
-          <i class="fas fa-paper-plane"></i> Inscrire & Envoyer le code
-        </button>
-
-        <a href="/secretaire/dashboard" class="btn" style="background:#f1f5f9;color:var(--text)">
-          <i class="fas fa-times"></i> Annuler
-        </a>
-
+      <div style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap">
+        <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Inscrire &amp; Envoyer le code</button>
+        <a href="/secretaire/dashboard" class="btn" style="background:#f1f5f9;color:var(--text)"><i class="fas fa-times"></i> Annuler</a>
       </div>
-
     </form>
   </div>
-
 </div>
-
-</body>
-</html>
+<script th:src="@{/js/responsive.js}"></script>
+</body></html>

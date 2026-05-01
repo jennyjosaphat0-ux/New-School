@@ -47,7 +47,7 @@ public class DataInitializer {
             }
 
             // Classes secondaires
-            for (String nom : new String[]{"NS1","NS2","NS3","NS4"}) {
+            for (String nom : new String[]{"7ème","8ème","9ème","NS1","NS2","NS3","NS4"}) {
                 if (classeRepo.findByNomClasse(nom).isEmpty()) {
                     classeRepo.save(new Classe(nom));
                 }

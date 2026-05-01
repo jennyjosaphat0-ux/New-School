@@ -19,7 +19,6 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService uds;
 
-    // CONSTRUCTOR A LAMEN (Ranplase @RequiredArgsConstructor)
     public SecurityConfig(CustomUserDetailsService uds) {
         this.uds = uds;
     }
@@ -27,10 +26,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(c -> c.ignoringRequestMatchers("/logout"))
+            .csrf(c -> c.ignoringRequestMatchers("/logout", "/eleve/paiement/checkout",
+                                                  "/stripe/webhook"))
             .authenticationProvider(authProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/stripe/webhook").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/prof/**").hasRole("PROF")
                 .requestMatchers("/secretaire/**").hasRole("SECRETAIRE")
@@ -64,7 +65,7 @@ public class SecurityConfig {
                 case "ROLE_ADMIN"      -> res.sendRedirect("/admin/dashboard");
                 case "ROLE_PROF"       -> res.sendRedirect("/prof/dashboard");
                 case "ROLE_SECRETAIRE" -> res.sendRedirect("/secretaire/dashboard");
-                case "ROLE_ELEVE"      -> res.sendRedirect("/eleve/dashboard");
+                case "ROLE_ELEVE"      -> res.sendRedirect("/eleve/paiement");
                 default                -> res.sendRedirect("/");
             }
         };
@@ -79,7 +80,5 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() { 
-        return new BCryptPasswordEncoder(); 
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }

@@ -1,7 +1,6 @@
 package com.example.NewSchool.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Data
 @Table(name = "eleve")
 public class Eleve implements UserDetails {
 
@@ -29,17 +27,19 @@ public class Eleve implements UserDetails {
     private String adresse;
     private LocalDate dateNaissance;
 
-    private String nomParent;
+    // PARAN 1
+    private String nomPere;
+    private String prenomPere;
+    // PARAN 2
+    private String nomMere;
+    private String prenomMere;
+
+    // EMAIL PARAN (pou primaire)
     private String emailParent;
 
     private String codeConnexion;
 
-    // ✅ ENUM (BON FASON)
-    public enum Sexe {
-        MASCULIN,
-        FEMININ,
-        AUTRE
-    }
+    public enum Sexe { MASCULIN, FEMININ }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sexe")
@@ -52,8 +52,7 @@ public class Eleve implements UserDetails {
     @JoinColumn(name = "classe_id")
     private Classe classe;
 
-    // ===== GETTERS & SETTERS =====
-
+    // GETTERS & SETTERS
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -72,8 +71,17 @@ public class Eleve implements UserDetails {
     public LocalDate getDateNaissance() { return dateNaissance; }
     public void setDateNaissance(LocalDate dateNaissance) { this.dateNaissance = dateNaissance; }
 
-    public String getNomParent() { return nomParent; }
-    public void setNomParent(String nomParent) { this.nomParent = nomParent; }
+    public String getNomPere() { return nomPere; }
+    public void setNomPere(String nomPere) { this.nomPere = nomPere; }
+
+    public String getPrenomPere() { return prenomPere; }
+    public void setPrenomPere(String prenomPere) { this.prenomPere = prenomPere; }
+
+    public String getNomMere() { return nomMere; }
+    public void setNomMere(String nomMere) { this.nomMere = nomMere; }
+
+    public String getPrenomMere() { return prenomMere; }
+    public void setPrenomMere(String prenomMere) { this.prenomMere = prenomMere; }
 
     public String getEmailParent() { return emailParent; }
     public void setEmailParent(String emailParent) { this.emailParent = emailParent; }
@@ -93,31 +101,46 @@ public class Eleve implements UserDetails {
     public Classe getClasse() { return classe; }
     public void setClasse(Classe classe) { this.classe = classe; }
 
-    // ===== LOGIC =====
-
+    // LOGIK
     @Transient
     public int getAge() {
         if (dateNaissance == null) return 0;
         return Period.between(dateNaissance, LocalDate.now()).getYears();
     }
 
-    // ===== SPRING SECURITY =====
-
-    @Override
-    public String getUsername() {
-        return this.email;
+    // Non konplè paran ki disponib (youn oswa 2)
+    @Transient
+    public String getNomParentComplet() {
+        String pere = (prenomPere != null ? prenomPere : "") + " " + (nomPere != null ? nomPere : "");
+        String mere = (prenomMere != null ? prenomMere : "") + " " + (nomMere != null ? nomMere : "");
+        pere = pere.trim();
+        mere = mere.trim();
+        if (!pere.isEmpty() && !mere.isEmpty()) return pere + " / " + mere;
+        if (!pere.isEmpty()) return pere;
+        if (!mere.isEmpty()) return mere;
+        return "-";
     }
 
-    @Override
-    public String getPassword() {
-        return this.codeConnexion;
+    // Klas primè: 1ère Année → 6ème Année
+    @Transient
+    public boolean isPrimaire() {
+        if (classe == null) return false;
+        String nom = classe.getNomClasse();
+        return nom != null && nom.contains("Année");
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    // Klas segondè: 7ème → NS4
+    @Transient
+    public boolean isSecondaire() {
+        return !isPrimaire();
+    }
+
+    // SPRING SECURITY
+    @Override public String getUsername() { return this.email; }
+    @Override public String getPassword() { return this.codeConnexion; }
+    @Override public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_ELEVE"));
     }
-
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return !exclu; }
     @Override public boolean isCredentialsNonExpired() { return true; }

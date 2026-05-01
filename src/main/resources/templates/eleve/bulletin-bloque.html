@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bulletin Bloqué | NewScool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 NEW SCOOL</h2><span>Espace Élève</span></div>
+  <a href="/eleve/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Académique</div>
+  <a href="/eleve/notes" class="nav-link"><i class="fas fa-star"></i> Mes Notes</a>
+  <a href="/eleve/bulletin" class="nav-link active"><i class="fas fa-file-alt"></i> Mon Bulletin</a>
+  <div class="nav-section">Compte</div>
+  <a href="/eleve/paiement" class="nav-link"><i class="fas fa-credit-card"></i> Mes Paiements</a>
+  <a href="/eleve/profil" class="nav-link"><i class="fas fa-user"></i> Mon Profil</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Mon Bulletin</h1><p>Trimestre <span th:text="${trimestre}"></span></p></div>
+  </div>
+  <div class="card" style="text-align:center;padding:60px;max-width:600px;margin:0 auto">
+    <div style="font-size:4rem;margin-bottom:20px">🔒</div>
+    <h2 style="color:#ef4444;font-size:1.4rem;margin-bottom:12px">Accès au Bulletin Bloqué</h2>
+    <p style="color:var(--muted);font-size:0.95rem;margin-bottom:30px">
+      Pour voir le bulletin du Trimestre <strong th:text="${trimestre}"></strong>,
+      vous devez effectuer les paiements requis.
+    </p>
+    <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:18px;margin-bottom:28px;text-align:left">
+      <strong style="color:#b45309">Paiements requis :</strong>
+      <ul style="margin-top:8px;padding-left:20px;font-size:0.9rem;color:#374151">
+        <li>Frais d'inscription (1,000 Gdes)</li>
+        <li th:if="${trimestre >= 1}">1er Versement (Trimestre 1)</li>
+        <li th:if="${trimestre >= 2}">2ème Versement (Trimestre 2)</li>
+        <li th:if="${trimestre >= 3}">3ème Versement (Trimestre 3)</li>
+      </ul>
+    </div>
+    <a href="/eleve/paiement" class="btn btn-primary" style="font-size:1rem;padding:14px 28px">
+      <i class="fas fa-credit-card"></i> Effectuer les paiements maintenant
+    </a>
+  </div>
+</div>
+<script th:src="@{/js/responsive.js}"></script>
+</body></html>

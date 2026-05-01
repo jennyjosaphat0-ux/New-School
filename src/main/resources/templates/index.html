@@ -1,254 +1,157 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SchoolVision | Portail</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NewScool | Portail</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
+    * { margin:0; padding:0; box-sizing:border-box; }
 
-    body{
-      font-family:'Inter',sans-serif;
-      min-height:100vh;
-      background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #233554 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    /* Animation coulè background — pwofesyonèl */
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a2332 0%, #1e3a5f 40%, #2d5016 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    .wrap{width:100%;max-width:460px;padding:24px}
-
-    .logo{text-align:center;margin-bottom:38px}
-
-    .logo-box{
-      width:82px;
-      height:82px;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:22px;
-      margin:0 auto 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 18px 36px rgba(0,0,0,0.35);
-      overflow:hidden;
+    /* Sèk dekoratif anarye */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -150px;
+      right: -150px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -100px;
+      left: -100px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+      border-radius: 50%;
     }
 
-    .logo-box img{
-      width:55px;
-      height:55px;
-      object-fit:contain;
-    }
+    .wrap { width: 100%; max-width: 480px; padding: 24px; position: relative; z-index: 1; }
 
-    .logo h1{
-      color:white;
-      font-size:1.9rem;
-      font-weight:900;
-      letter-spacing:3px;
+    /* LOGO */
+    .logo { text-align: center; margin-bottom: 36px; }
+    .logo-box {
+      width: 90px; height: 90px;
+      background: white;
+      border-radius: 22px;
+      margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1);
+      overflow: hidden;
     }
+    .logo-box img { width: 70px; height: 70px; object-fit: contain; }
+    .logo h1 { color: white; font-size: 2rem; font-weight: 900; letter-spacing: 3px; }
+    .logo .sous { color: rgba(255,255,255,0.55); font-size: 0.8rem; margin-top: 6px; }
 
-    .logo p{
-      color:#64748b;
-      font-size:0.82rem;
-      margin-top:7px;
+    /* CARD */
+    .card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 36px;
     }
+    .card h2 { color: white; font-size: 1.15rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .card > p { color: rgba(255,255,255,0.4); font-size: 0.82rem; text-align: center; margin-bottom: 24px; }
 
-    .card{
-      background:rgba(255,255,255,0.05);
-      backdrop-filter:blur(20px);
-      border:1px solid rgba(255,255,255,0.1);
-      border-radius:22px;
-      padding:36px;
+    /* BOUTON ROLE */
+    .role {
+      display: flex; align-items: center; gap: 16px;
+      padding: 15px 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; cursor: pointer; margin-bottom: 10px;
+      transition: all 0.25s; width: 100%; text-align: left;
     }
-
-    .card h2{
-      color:white;
-      font-size:1.2rem;
-      font-weight:700;
-      text-align:center;
-      margin-bottom:6px;
+    .role:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); transform: translateX(4px); }
+    .role-ico {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; flex-shrink: 0;
     }
-
-    .card>p{
-      color:#475569;
-      font-size:0.82rem;
-      text-align:center;
-      margin-bottom:26px;
-    }
-
-    .role{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      padding:16px 20px;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:13px;
-      cursor:pointer;
-      margin-bottom:10px;
-      transition:all 0.25s;
-      width:100%;
-      text-align:left;
-    }
-
-    .role:hover{
-      background:rgba(59,130,246,0.15);
-      border-color:#3b82f6;
-      transform:translateX(5px);
-    }
-
-    .role-ico{
-      width:44px;
-      height:44px;
-      border-radius:11px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:1.15rem;
-      flex-shrink:0;
-    }
-
-    .role-txt strong{
-      color:white;
-      display:block;
-      font-size:0.9rem;
-    }
-
-    .role-txt span{
-      color:#64748b;
-      font-size:0.75rem;
-    }
-
-    .role-arrow{
-      margin-left:auto;
-      color:#475569;
-    }
+    .role-txt strong { color: white; display: block; font-size: 0.9rem; }
+    .role-txt span { color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+    .role-arrow { margin-left: auto; color: rgba(255,255,255,0.25); }
 
     /* MODAL */
-    .overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.75);
-      backdrop-filter:blur(8px);
-      z-index:100;
-      align-items:center;
-      justify-content:center;
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+    .modal {
+      background: #1a2332;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px; padding: 38px; width: 370px;
+      position: relative; animation: up 0.3s ease;
+    }
+    @keyframes up { from{transform:translateY(28px);opacity:0} to{transform:translateY(0);opacity:1} }
+    .modal h3 { color: white; font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; text-align: center; }
+    .x { position: absolute; top: 14px; right: 18px; background: none; border: none;
+         color: rgba(255,255,255,0.3); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+    .x:hover { color: white; }
+    .field { margin-bottom: 16px; }
+    .field label { color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 700;
+                   display: block; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input {
+      width: 100%; padding: 12px 15px;
+      background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: white; font-size: 0.9rem; outline: none;
+      transition: 0.25s; font-family: inherit;
+    }
+    .field input:focus { border-color: #3b82f6; background: rgba(59,130,246,0.12); }
+    .btn-in {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #1e3a5f, #2d5a27);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
+      color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+      margin-top: 6px; transition: 0.2s; font-family: inherit;
+    }
+    .btn-in:hover { opacity: 0.9; transform: translateY(-2px); }
+    .err {
+      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5; padding: 11px 15px; border-radius: 9px;
+      margin-bottom: 16px; font-size: 0.83rem; text-align: center;
     }
 
-    .overlay.show{display:flex}
-
-    .modal{
-      background:#1e293b;
-      border:1px solid rgba(255,255,255,0.1);
-      border-radius:20px;
-      padding:38px;
-      width:360px;
-      position:relative;
-      animation:up 0.3s ease;
-    }
-
-    @keyframes up{
-      from{transform:translateY(28px);opacity:0}
-      to{transform:translateY(0);opacity:1}
-    }
-
-    .modal h3{
-      color:white;
-      font-size:1.1rem;
-      font-weight:700;
-      margin-bottom:24px;
-      text-align:center;
-    }
-
-    .x{
-      position:absolute;
-      top:14px;
-      right:18px;
-      background:none;
-      border:none;
-      color:#64748b;
-      font-size:1.4rem;
-      cursor:pointer;
-    }
-
-    .x:hover{color:white}
-
-    .field{margin-bottom:16px}
-
-    .field label{
-      color:#94a3b8;
-      font-size:0.78rem;
-      font-weight:700;
-      display:block;
-      margin-bottom:7px;
-    }
-
-    .field input{
-      width:100%;
-      padding:12px 15px;
-      background:rgba(255,255,255,0.06);
-      border:1.5px solid rgba(255,255,255,0.1);
-      border-radius:10px;
-      color:white;
-      font-size:0.9rem;
-      outline:none;
-    }
-
-    .field input:focus{
-      border-color:#3b82f6;
-      background:rgba(59,130,246,0.1);
-    }
-
-    .btn-in{
-      width:100%;
-      padding:13px;
-      background:linear-gradient(135deg,#3b82f6,#8b5cf6);
-      border:none;
-      border-radius:11px;
-      color:white;
-      font-weight:700;
-      font-size:0.95rem;
-      cursor:pointer;
-      margin-top:6px;
-    }
-
-    .btn-in:hover{
-      opacity:0.88;
-      transform:translateY(-2px);
-    }
-
-    .err{
-      background:rgba(239,68,68,0.15);
-      border:1px solid rgba(239,68,68,0.3);
-      color:#fca5a5;
-      padding:11px 15px;
-      border-radius:9px;
-      margin-bottom:16px;
-      font-size:0.83rem;
-      text-align:center;
+    /* Responsive */
+    @media (max-width: 500px) {
+      .wrap { padding: 16px; }
+      .card { padding: 24px; }
+      .modal { width: 90vw; padding: 28px; }
     }
   </style>
 </head>
-
 <body>
-
 <div class="wrap">
-
   <div class="logo">
     <div class="logo-box">
-      <img th:src="@{/images/logo.png}" alt="Logo">
+      <img th:src="@{/images/logo.png}" alt="NewScool Logo">
     </div>
-    <h1>Bienvenue Au Collège Mixte Le Progrès</h1>
-    <p> Portail de Gestion</p>
+    <h1>College Mixte Le Progres</h1>
+    <div class="sous">Système de Gestion Scolaire</div>
   </div>
 
   <div class="card">
-    <h2>Bienvenue</h2>
-    <p>Sélectionnez votre profil pour continuer</p>
+    <p>Sélectionnez votre profil pour accéder au portail</p>
 
     <button class="role" onclick="open_('Administrateur')">
       <div class="role-ico" style="background:rgba(99,102,241,0.2);color:#818cf8">
@@ -256,7 +159,7 @@
       </div>
       <div class="role-txt">
         <strong>Administrateur</strong>
-        <span>Gestion complète de l'établissement</span>
+        <span>Direction — Gestion complète</span>
       </div>
       <i class="fas fa-chevron-right role-arrow"></i>
     </button>
@@ -267,7 +170,7 @@
       </div>
       <div class="role-txt">
         <strong>Professeur</strong>
-        <span>Saisie des notes et suivi des classes</span>
+        <span>Saisie des notes et suivi</span>
       </div>
       <i class="fas fa-chevron-right role-arrow"></i>
     </button>
@@ -278,7 +181,7 @@
       </div>
       <div class="role-txt">
         <strong>Secrétaire</strong>
-        <span>Inscription et gestion des élèves</span>
+        <span>Inscription des élèves</span>
       </div>
       <i class="fas fa-chevron-right role-arrow"></i>
     </button>
@@ -289,53 +192,47 @@
       </div>
       <div class="role-txt">
         <strong>Élève / Parent</strong>
-        <span>Consulter notes, bulletin et profil</span>
+        <span>Notes, bulletin, paiements</span>
       </div>
       <i class="fas fa-chevron-right role-arrow"></i>
     </button>
-
   </div>
 </div>
 
+<!-- MODAL LOGIN -->
 <div class="overlay" id="ov" onclick="closeBg(event)">
   <div class="modal">
     <button class="x" onclick="close_()">×</button>
     <h3 id="mtitle">Connexion</h3>
-
     <div class="err" th:if="${param.error}">
-      <i class="fas fa-exclamation-circle"></i> Email ou mot de passe incorrect.
+      <i class="fas fa-exclamation-circle"></i> Email ou code incorrect.
     </div>
-
     <form th:action="@{/login}" method="post">
       <div class="field">
         <label>Email</label>
         <input type="email" name="username" placeholder="votre@email.com" required autofocus>
       </div>
-
       <div class="field">
         <label>Mot de passe / Code d'accès</label>
         <input type="password" name="password" placeholder="••••••••" required>
       </div>
-
       <button type="submit" class="btn-in">
-        <i class="fas fa-sign-in-alt"></i> Se connecter
+        <i class="fas fa-sign-in-alt"></i> &nbsp;Se connecter
       </button>
     </form>
   </div>
 </div>
 
 <script>
-function open_(title){
-  document.getElementById('mtitle').textContent='🔐 '+title;
+function open_(t) {
+  document.getElementById('mtitle').textContent = '🔐 ' + t;
   document.getElementById('ov').classList.add('show');
+  setTimeout(() => document.querySelector('.modal input[type=email]').focus(), 300);
 }
-function close_(){
-  document.getElementById('ov').classList.remove('show');
-}
-function closeBg(e){
-  if(e.target.id==='ov') close_();
-}
+function close_() { document.getElementById('ov').classList.remove('show'); }
+function closeBg(e) { if (e.target.id === 'ov') close_(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close_(); });
 </script>
-
+<script th:src="@{/js/responsive.js}"></script>
 </body>
 </html>

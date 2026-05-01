@@ -8,12 +8,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.*;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final AdminService adminService;
     private final NoteService noteService;
+    private final PaiementService paiementService;
     private final EleveRepository eleveRepo;
     private final ProfesseurRepository profRepo;
     private final ClasseRepository classeRepo;
@@ -21,17 +24,14 @@ public class AdminController {
     private final NoteRepository noteRepo;
     private final SecretaireRepository secRepo;
 
-    // CONSTRUCTOR A LAMEN (Paske Lombok gen pwoblèm nan NetBeans)
-    public AdminController(AdminService adminService, 
-                           NoteService noteService, 
-                           EleveRepository eleveRepo, 
-                           ProfesseurRepository profRepo, 
-                           ClasseRepository classeRepo, 
-                           MatiereRepository matiereRepo, 
-                           NoteRepository noteRepo, 
-                           SecretaireRepository secRepo) {
+    public AdminController(AdminService adminService, NoteService noteService,
+                           PaiementService paiementService,
+                           EleveRepository eleveRepo, ProfesseurRepository profRepo,
+                           ClasseRepository classeRepo, MatiereRepository matiereRepo,
+                           NoteRepository noteRepo, SecretaireRepository secRepo) {
         this.adminService = adminService;
         this.noteService = noteService;
+        this.paiementService = paiementService;
         this.eleveRepo = eleveRepo;
         this.profRepo = profRepo;
         this.classeRepo = classeRepo;
@@ -118,8 +118,17 @@ public class AdminController {
 
     @GetMapping("/eleves/classe/{id}")
     public String elevesDeClasse(@PathVariable Long id, Model m) {
-        m.addAttribute("eleves", eleveRepo.findByClasseId(id));
+        List<Eleve> eleves = eleveRepo.findByClasseId(id);
+
+        // Kalkile statut paiement pou chak elev
+        Map<Long, String> statutsPaiement = new LinkedHashMap<>();
+        for (Eleve e : eleves) {
+            statutsPaiement.put(e.getId(), paiementService.getStatutPaiementEleve(e.getId()));
+        }
+
+        m.addAttribute("eleves", eleves);
         m.addAttribute("classe", classeRepo.findById(id).orElseThrow());
+        m.addAttribute("statutsPaiement", statutsPaiement);
         return "admin/eleves-liste";
     }
 
@@ -128,6 +137,8 @@ public class AdminController {
         Eleve e = eleveRepo.findById(id).orElseThrow();
         m.addAttribute("eleve", e);
         m.addAttribute("notes", noteRepo.findByEleveId(id));
+        m.addAttribute("paiements", paiementService.getPaiementsEleve(id));
+        m.addAttribute("statutPaiement", paiementService.getStatutPaiementEleve(id));
         return "admin/eleve-fiche";
     }
 
@@ -147,8 +158,7 @@ public class AdminController {
 
     @GetMapping("/notes/classe/{id}")
     public String notesClasse(@PathVariable Long id,
-                              @RequestParam(defaultValue = "1") int trimestre,
-                              Model m) {
+                              @RequestParam(defaultValue = "1") int trimestre, Model m) {
         m.addAttribute("notes", noteService.getNotesClasse(id, trimestre));
         m.addAttribute("eleves", eleveRepo.findByClasseId(id));
         m.addAttribute("classe", classeRepo.findById(id).orElseThrow());
@@ -165,12 +175,25 @@ public class AdminController {
 
     @GetMapping("/bulletins/classe/{id}")
     public String bulletinsClasse(@PathVariable Long id,
-                                  @RequestParam(defaultValue = "1") int trimestre,
-                                  Model m) {
-        m.addAttribute("eleves", eleveRepo.findByClasseId(id));
+                                  @RequestParam(defaultValue = "1") int trimestre, Model m) {
+        List<Eleve> eleves = eleveRepo.findByClasseId(id);
+        Map<Long, Double> moyennes = new LinkedHashMap<>();
+        Map<Long, String> mentions = new LinkedHashMap<>();
+        for (Eleve e : eleves) {
+            Double moy = noteService.getMoyenneGenerale(e.getId(), trimestre);
+            moyennes.put(e.getId(), moy);
+            if (moy == null)       mentions.put(e.getId(), "N/A");
+            else if (moy >= 18)    mentions.put(e.getId(), "Excellent");
+            else if (moy >= 15)    mentions.put(e.getId(), "Très Bien");
+            else if (moy >= 12)    mentions.put(e.getId(), "Bien");
+            else if (moy >= 10)    mentions.put(e.getId(), "Passable");
+            else                   mentions.put(e.getId(), "Insuffisant");
+        }
+        m.addAttribute("eleves", eleves);
         m.addAttribute("classe", classeRepo.findById(id).orElseThrow());
         m.addAttribute("trimestre", trimestre);
-        m.addAttribute("noteService", noteService);
+        m.addAttribute("moyennes", moyennes);
+        m.addAttribute("mentions", mentions);
         return "admin/bulletins-liste";
     }
 }

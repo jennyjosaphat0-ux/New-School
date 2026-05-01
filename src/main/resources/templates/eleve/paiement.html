@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<title>Mes Paiements | NewScool</title>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img th:src="@{/images/logo.png}" alt="Logo" style="width:44px;height:44px;object-fit:contain;border-radius:8px">
+    <div><h2>NEW SCOOL</h2><span>Espace Élève</span></div>
+  </div>
+  <a href="/eleve/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Tableau de Bord</a>
+  <div class="nav-section">Académique</div>
+  <a href="/eleve/notes" class="nav-link"><i class="fas fa-star"></i> Mes Notes</a>
+  <a href="/eleve/bulletin" class="nav-link"><i class="fas fa-file-alt"></i> Mon Bulletin</a>
+  <div class="nav-section">Paiements</div>
+  <a href="/eleve/paiement" class="nav-link active"><i class="fas fa-money-bill-wave"></i> Mes Paiements</a>
+  <div class="nav-section">Compte</div>
+  <a href="/eleve/profil" class="nav-link"><i class="fas fa-user"></i> Mon Profil</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Mes Paiements</h1><p>Gérer vos frais de scolarité</p></div>
+    <span class="badge badge-eleve">🎓 ÉLÈVE</span>
+  </div>
+
+  <div th:if="${success}" class="alert alert-success"><i class="fas fa-check-circle"></i> <span th:text="${success}"></span></div>
+  <div th:if="${error}" class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span></div>
+
+  <!-- ACCES BULLETIN -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title"><i class="fas fa-file-alt" style="color:var(--primary)"></i> Accès aux Bulletins</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="text-align:center;padding:16px;border-radius:12px;border:2px solid"
+        th:classappend="${peutVoirT1} ? 'border-green-400' : ''"
+        th:style="${peutVoirT1} ? 'border-color:#10b981;background:#dcfce7' : 'border-color:#e2e8f0;background:#f8fafc'">
+        <div style="font-size:1.8rem" th:text="${peutVoirT1} ? '✅' : '🔒'"></div>
+        <div style="font-weight:700;margin-top:6px">Trimestre 1</div>
+        <div style="font-size:0.75rem;color:var(--muted)" th:text="${peutVoirT1} ? 'Accessible' : 'Payer 1er versement'"></div>
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:12px;border:2px solid"
+        th:style="${peutVoirT2} ? 'border-color:#10b981;background:#dcfce7' : 'border-color:#e2e8f0;background:#f8fafc'">
+        <div style="font-size:1.8rem" th:text="${peutVoirT2} ? '✅' : '🔒'"></div>
+        <div style="font-weight:700;margin-top:6px">Trimestre 2</div>
+        <div style="font-size:0.75rem;color:var(--muted)" th:text="${peutVoirT2} ? 'Accessible' : 'Payer T1 + T2'"></div>
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:12px;border:2px solid"
+        th:style="${peutVoirT3} ? 'border-color:#10b981;background:#dcfce7' : 'border-color:#e2e8f0;background:#f8fafc'">
+        <div style="font-size:1.8rem" th:text="${peutVoirT3} ? '✅' : '🔒'"></div>
+        <div style="font-weight:700;margin-top:6px">Trimestre 3</div>
+        <div style="font-size:0.75rem;color:var(--muted)" th:text="${peutVoirT3} ? 'Accessible' : 'Payer tous versements'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTE PAIEMENTS -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-history" style="color:var(--warning)"></i> Détail des Paiements</div>
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Montant</th><th>Statut</th><th>Date Paiement</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="p : ${paiements}">
+          <td><strong th:text="${p.typePaiementLabel}"></strong></td>
+          <td><strong th:text="${p.montant}+' gdes'"></strong></td>
+          <td>
+            <span class="tag tag-success" th:if="${p.statut.name() == 'PAYE'}">✅ Payé</span>
+            <span class="tag tag-danger"  th:if="${p.statut.name() == 'EN_ATTENTE'}">⏳ En attente</span>
+            <span class="tag tag-danger"  th:if="${p.statut.name() == 'ECHOUE'}">❌ Échoué</span>
+          </td>
+          <td th:text="${p.datePaiement != null ? p.datePaiement : '-'}"></td>
+          <td>
+            <form th:if="${p.statut.name() == 'EN_ATTENTE'}"
+                  th:action="@{/eleve/paiement/checkout}" method="post" style="display:inline">
+              <input type="hidden" name="paiementId" th:value="${p.id}">
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fas fa-credit-card"></i> Payer via Stripe
+              </button>
+            </form>
+            <span th:if="${p.statut.name() == 'PAYE'}" style="color:var(--success);font-size:0.85rem">
+              <i class="fas fa-check"></i> Confirmé
+            </span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(paiements)}">
+          <td colspan="5" style="text-align:center;color:var(--muted);padding:32px">
+            Aucun paiement enregistré.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script th:src="@{/js/responsive.js}"></script>
+</body></html>

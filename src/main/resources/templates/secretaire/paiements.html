@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<title>Paiements | NewScool</title>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img th:src="@{/images/logo.png}" alt="Logo" style="width:44px;height:44px;object-fit:contain;border-radius:8px">
+    <div><h2>NEW SCOOL</h2><span>Secrétariat</span></div>
+  </div>
+  <a href="/secretaire/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Élèves</div>
+  <a href="/secretaire/eleve/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Inscrire un Élève</a>
+  <a href="/secretaire/eleves/liste" class="nav-link"><i class="fas fa-graduation-cap"></i> Liste Élèves</a>
+  <div class="nav-section">Finance</div>
+  <a href="/secretaire/paiements" class="nav-link active"><i class="fas fa-money-bill-wave"></i> Paiements</a>
+  <div class="sidebar-footer"><form action="/logout" method="post">
+    <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+  </form></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div><h1>Historique des Paiements</h1><p>Suivi des paiements par classe</p></div>
+    <span class="badge badge-sec">🗂️ SECRÉTAIRE</span>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Filtrer par Classe</div>
+    <div class="grid-classes">
+      <a th:each="cl : ${classes}" th:href="@{/secretaire/paiements/classe/{id}(id=${cl.id})}" class="class-card">
+        <div class="cc-icon">💰</div><h4 th:text="${cl.nomClasse}"></h4><p>Voir paiements</p>
+      </a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tous les Paiements</div>
+    <table>
+      <thead><tr><th>Élève</th><th>Classe</th><th>Type</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
+      <tbody>
+        <tr th:each="p : ${paiements}">
+          <td><strong th:text="${p.eleve.nom+' '+p.eleve.prenom}"></strong></td>
+          <td th:text="${p.eleve.classe?.nomClasse ?: '-'}"></td>
+          <td th:text="${p.typePaiementLabel}"></td>
+          <td th:text="${p.montant}+' gdes'"></td>
+          <td>
+            <span class="tag tag-success" th:if="${p.statut.name()=='PAYE'}">Payé</span>
+            <span class="tag tag-warning" th:if="${p.statut.name()=='EN_ATTENTE'}">En attente</span>
+            <span class="tag tag-danger"  th:if="${p.statut.name()=='ECHOUE'}">Échoué</span>
+          </td>
+          <td th:text="${p.datePaiement != null ? p.datePaiement : '-'}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script th:src="@{/js/responsive.js}"></script>
+</body></html>
