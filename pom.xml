@@ -15,7 +15,7 @@
     <groupId>com.example</groupId>
     <artifactId>NewSchool</artifactId>
     <version>1.0.0</version>
-    <name>NewScool</name>
+    <name>NewShcool</name>
     <description>Systeme de Gestion Scolaire</description>
 
     <properties>
