@@ -1,6 +1,7 @@
 package com.example.NewSchool.controller;
 
 import com.example.NewSchool.model.Eleve;
+import com.example.NewSchool.model.Paiement;
 import com.example.NewSchool.repository.EleveRepository;
 import com.example.NewSchool.repository.ClasseRepository;
 import com.example.NewSchool.service.PaiementService;
@@ -33,7 +34,6 @@ public class SecretaireController {
     public String dashboard(Model model) {
         model.addAttribute("totalEleves", eleveRepo.count());
         model.addAttribute("totalClasses", classeRepo.count());
-        // Dènye 5 elèv enrejistre
         List<Eleve> tous = eleveRepo.findAll();
         List<Eleve> derniers = tous.size() > 5 ? tous.subList(tous.size()-5, tous.size()) : tous;
         Collections.reverse(derniers);
@@ -56,14 +56,47 @@ public class SecretaireController {
             String code = secService.enregistrerEleve(eleve, classeId);
             ra.addFlashAttribute("success",
                 "✅ Élève " + eleve.getNom() + " enregistré! Code: " + code +
-                " — Un email a été envoyé avec les instructions de paiement.");
-            return "redirect:/secretaire/eleves/liste";
+                " — Email envoyé avec instructions de paiement.");
+            return "redirect:/secretaire/paiement/" + eleve.getId();
         } catch (Exception e) {
             ra.addFlashAttribute("error", "❌ Erreur: " + e.getMessage());
             return "redirect:/secretaire/eleve/nouveau";
         }
     }
 
+    // ===== PAIEMENT =====
+    @GetMapping("/paiement/{eleveId}")
+    public String pagePaiement(@PathVariable Long eleveId, Model m) {
+        Eleve eleve = eleveRepo.findById(eleveId).orElseThrow();
+        m.addAttribute("eleve", eleve);
+        m.addAttribute("paiements", paiementService.getPaiementsEleve(eleveId));
+        return "secretaire/paiement-eleve";
+    }
+
+    @PostMapping("/paiement/checkout")
+    public String checkout(@RequestParam Long paiementId) throws Exception {
+        String successUrl = "https://new-school-7h76.onrender.com/secretaire/paiement/succes/" + paiementId;
+        String cancelUrl  = "https://new-school-7h76.onrender.com/secretaire/paiement/annule/" + paiementId;
+        String url = paiementService.creerSessionStripe(paiementId, successUrl, cancelUrl);
+        return "redirect:" + url;
+    }
+
+    @GetMapping("/paiement/succes/{paiementId}")
+    public String succes(@PathVariable Long paiementId, RedirectAttributes ra) {
+        paiementService.confirmerPaiement(paiementId);
+        Paiement p = paiementService.findById(paiementId);
+        ra.addFlashAttribute("success", "✅ Paiement confirmé!");
+        return "redirect:/secretaire/paiement/" + p.getEleve().getId();
+    }
+
+    @GetMapping("/paiement/annule/{paiementId}")
+    public String annule(@PathVariable Long paiementId, RedirectAttributes ra) {
+        Paiement p = paiementService.findById(paiementId);
+        ra.addFlashAttribute("error", "❌ Paiement annulé.");
+        return "redirect:/secretaire/paiement/" + p.getEleve().getId();
+    }
+
+    // ===== LISTES =====
     @GetMapping("/eleve/liste")
     public String listeEleves(Model model) {
         List<Eleve> eleves = eleveRepo.findAll();

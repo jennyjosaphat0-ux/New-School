@@ -4,6 +4,7 @@ import com.example.NewSchool.model.*;
 import com.example.NewSchool.model.Paiement.StatutPaiement;
 import com.example.NewSchool.model.Paiement.TypePaiement;
 import com.example.NewSchool.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -13,19 +14,20 @@ import java.util.List;
 @Service
 public class PaiementService {
 
-    // TARIF FIXE
     public static final BigDecimal FRAIS_INSCRIPTION = new BigDecimal("1000.00");
     public static final BigDecimal FRAIS_VERSEMENT   = new BigDecimal("3000.00");
 
     private final PaiementRepository paiementRepo;
     private final EleveRepository eleveRepo;
 
+    @Value("${stripe.secret.key}")
+    private String stripeSecretKey;
+
     public PaiementService(PaiementRepository paiementRepo, EleveRepository eleveRepo) {
         this.paiementRepo = paiementRepo;
         this.eleveRepo = eleveRepo;
     }
 
-    // Kreye paiement inscription otomatikman lè elèv enrejistre
     @Transactional
     public Paiement creerPaiementInscription(Eleve eleve) {
         Paiement p = new Paiement();
@@ -37,12 +39,10 @@ public class PaiementService {
         return paiementRepo.save(p);
     }
 
-    // Kreye 3 versement otomatikman lè inscription peye
     @Transactional
     public void creerVersements(Eleve eleve) {
         for (TypePaiement type : new TypePaiement[]{
                 TypePaiement.VERSEMENT_1, TypePaiement.VERSEMENT_2, TypePaiement.VERSEMENT_3}) {
-            // Pa kreye si deja egziste
             if (!paiementRepo.existsByEleveIdAndTypePaiementAndStatut(
                     eleve.getId(), type, StatutPaiement.PAYE)) {
                 boolean existe = paiementRepo.findByEleveIdAndTypePaiement(
@@ -60,22 +60,32 @@ public class PaiementService {
         }
     }
 
-    // Confirme paiement apre Stripe retounen succes
+    // Konfime pa Stripe Session ID (webhook)
     @Transactional
     public void confirmerPaiement(String sessionId) {
         paiementRepo.findByStripeSessionId(sessionId).ifPresent(p -> {
             p.setStatut(StatutPaiement.PAYE);
             p.setDatePaiement(LocalDateTime.now());
             paiementRepo.save(p);
-
-            // Si inscription peye → kreye 3 versement otomatikman
             if (p.getTypePaiement() == TypePaiement.INSCRIPTION) {
                 creerVersements(p.getEleve());
             }
         });
     }
 
-    // Enrejistre session Stripe nan yon paiement
+    // Konfime pa paiement ID (pou secrétè)
+    @Transactional
+    public void confirmerPaiement(Long paiementId) {
+        paiementRepo.findById(paiementId).ifPresent(p -> {
+            p.setStatut(StatutPaiement.PAYE);
+            p.setDatePaiement(LocalDateTime.now());
+            paiementRepo.save(p);
+            if (p.getTypePaiement() == TypePaiement.INSCRIPTION) {
+                creerVersements(p.getEleve());
+            }
+        });
+    }
+
     @Transactional
     public void enregistrerStripeSession(Long paiementId, String sessionId) {
         paiementRepo.findById(paiementId).ifPresent(p -> {
@@ -84,14 +94,57 @@ public class PaiementService {
         });
     }
 
-    // Verifye si yon elèv ka wè bulletin trimès X
+    // Jwenn paiement pa ID
+    public Paiement findById(Long id) {
+        return paiementRepo.findById(id).orElseThrow();
+    }
+
+    // Kreye session Stripe epi retounen URL
+    public String creerSessionStripe(Long paiementId, String successUrl, String cancelUrl)
+            throws Exception {
+        Paiement p = paiementRepo.findById(paiementId).orElseThrow();
+
+        com.stripe.Stripe.apiKey = stripeSecretKey;
+
+        com.stripe.param.checkout.SessionCreateParams params =
+            com.stripe.param.checkout.SessionCreateParams.builder()
+                .setMode(com.stripe.param.checkout.SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl(successUrl)
+                .setCancelUrl(cancelUrl)
+                .addLineItem(
+                    com.stripe.param.checkout.SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(
+                            com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData.builder()
+                                .setCurrency("usd")
+                                .setUnitAmount(p.getMontant().multiply(new BigDecimal("100")).longValue())
+                                .setProductData(
+                                    com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
+                                        .ProductData.builder()
+                                        .setName(p.getTypePaiementLabel())
+                                        .setDescription("NewScool — " + p.getEleve().getNom()
+                                            + " " + p.getEleve().getPrenom())
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build();
+
+        com.stripe.model.checkout.Session session =
+            com.stripe.model.checkout.Session.create(params);
+
+        enregistrerStripeSession(paiementId, session.getId());
+
+        return session.getUrl();
+    }
+
     public boolean peutVoirBulletin(Long eleveId, int trimestre) {
-        // Dwe peye inscription D'ABORD
         boolean inscriptionPayee = paiementRepo.existsByEleveIdAndTypePaiementAndStatut(
                 eleveId, TypePaiement.INSCRIPTION, StatutPaiement.PAYE);
         if (!inscriptionPayee) return false;
 
-        // Selon trimès, verifye versement ki nesesè yo
         return switch (trimestre) {
             case 1 -> paiementRepo.existsByEleveIdAndTypePaiementAndStatut(
                     eleveId, TypePaiement.VERSEMENT_1, StatutPaiement.PAYE);
@@ -109,15 +162,12 @@ public class PaiementService {
         };
     }
 
-    // Statut rezime pou afichaj nan tab elèv
     public String getStatutPaiementEleve(Long eleveId) {
         List<Paiement> paiements = paiementRepo.findByEleveId(eleveId);
         if (paiements.isEmpty()) return "Non effectué";
-
         long totalPaye = paiements.stream()
             .filter(p -> p.getStatut() == StatutPaiement.PAYE).count();
         long total = paiements.size();
-
         if (totalPaye == 0) return "Non effectué";
         if (totalPaye == total) return "Paiement effectué";
         return "Paiement en cours";
