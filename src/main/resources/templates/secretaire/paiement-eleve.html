@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Paiement Élève | NewScool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .pay-card{background:white;border:1px solid var(--border);border-radius:16px;
+      padding:24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+    .pay-info{display:flex;align-items:center;gap:16px}
+    .pay-ico{width:48px;height:48px;border-radius:12px;display:flex;
+      align-items:center;justify-content:center;font-size:1.3rem}
+    .pay-type{font-weight:700;font-size:0.95rem;color:var(--text)}
+    .pay-montant{font-size:0.85rem;color:var(--muted);margin-top:3px}
+    .statut-paye{background:#dcfce7;color:#15803d;padding:5px 14px;
+      border-radius:20px;font-size:0.78rem;font-weight:700}
+    .statut-attente{background:#fef3c7;color:#b45309;padding:5px 14px;
+      border-radius:20px;font-size:0.78rem;font-weight:700}
+    .stripe-btn{background:linear-gradient(135deg,#635bff,#5144d3);color:white;
+      border:none;padding:11px 22px;border-radius:10px;font-weight:700;
+      font-size:0.88rem;cursor:pointer;transition:0.2s;display:inline-flex;
+      align-items:center;gap:8px}
+    .stripe-btn:hover{opacity:0.9;transform:translateY(-2px)}
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><h2>🏫 NEW SCOOL</h2><span>Secrétariat</span></div>
+  <a href="/secretaire/dashboard" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <div class="nav-section">Élèves</div>
+  <a href="/secretaire/eleve/nouveau" class="nav-link"><i class="fas fa-user-plus"></i> Inscrire un Élève</a>
+  <a href="/secretaire/eleves/liste" class="nav-link active"><i class="fas fa-graduation-cap"></i> Liste des Élèves</a>
+  <div class="nav-section">Paiements</div>
+  <a href="/secretaire/paiements" class="nav-link"><i class="fas fa-money-bill-wave"></i> Historique Paiements</a>
+  <div class="sidebar-footer">
+    <form action="/logout" method="post">
+      <button class="btn-logout"><i class="fas fa-power-off"></i> Déconnexion</button>
+    </form>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1 th:text="'Paiement — '+${eleve.nom}+' '+${eleve.prenom}">Paiement</h1>
+      <p th:text="'Classe : '+${eleve.classe?.nomClasse}"></p>
+    </div>
+    <a href="/secretaire/eleves/liste" class="btn" style="background:#f1f5f9;color:var(--text)">
+      <i class="fas fa-arrow-left"></i> Retour
+    </a>
+  </div>
+
+  <div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+  </div>
+  <div th:if="${error}" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+  </div>
+
+  <!-- Info elève -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">
+      <i class="fas fa-user-graduate" style="color:var(--primary)"></i> Informations de l'Élève
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;font-size:0.875rem">
+      <div>
+        <span style="color:var(--muted);font-size:0.72rem;display:block;text-transform:uppercase">Nom complet</span>
+        <strong th:text="${eleve.nom+' '+eleve.prenom}"></strong>
+      </div>
+      <div>
+        <span style="color:var(--muted);font-size:0.72rem;display:block;text-transform:uppercase">Classe</span>
+        <strong th:text="${eleve.classe != null ? eleve.classe.nomClasse : '-'}"></strong>
+      </div>
+      <div>
+        <span style="color:var(--muted);font-size:0.72rem;display:block;text-transform:uppercase">Email</span>
+        <strong th:text="${eleve.email != null ? eleve.email : '-'}"></strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paiements -->
+  <div class="card-title">Frais à collecter</div>
+
+  <div th:each="p : ${paiements}">
+    <div class="pay-card">
+      <div class="pay-info">
+        <div class="pay-ico"
+          th:style="${p.statut.name() == 'PAYE'}
+            ? 'background:#dcfce7;color:#15803d'
+            : 'background:#fef3c7;color:#b45309'">
+          <i th:class="${p.statut.name() == 'PAYE'} ? 'fas fa-check-circle' : 'fas fa-clock'"></i>
+        </div>
+        <div>
+          <div class="pay-type" th:text="${p.typePaiementLabel}"></div>
+          <div class="pay-montant" th:text="${p.montant}+' Gdes'"></div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <span class="statut-paye" th:if="${p.statut.name() == 'PAYE'}">
+          <i class="fas fa-check"></i> Payé
+        </span>
+        <div th:unless="${p.statut.name() == 'PAYE'}">
+          <span class="statut-attente" style="display:block;margin-bottom:10px">En attente</span>
+          <form th:action="@{/secretaire/paiement/checkout}" method="post">
+            <input type="hidden" name="paiementId" th:value="${p.id}">
+            <button type="submit" class="stripe-btn">
+              <i class="fab fa-stripe-s"></i> Collecter paiement
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${#lists.isEmpty(paiements)}"
+       style="text-align:center;padding:40px;color:var(--muted)">
+    <i class="fas fa-credit-card" style="font-size:2rem;display:block;margin-bottom:12px"></i>
+    Aucun paiement enregistré.
+  </div>
+</div>
+<script th:src="@{/js/responsive.js}"></script>
+</body>
+</html>
