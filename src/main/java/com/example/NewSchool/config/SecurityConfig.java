@@ -65,7 +65,7 @@ public class SecurityConfig {
                 case "ROLE_ADMIN"      -> res.sendRedirect("/admin/dashboard");
                 case "ROLE_PROF"       -> res.sendRedirect("/prof/dashboard");
                 case "ROLE_SECRETAIRE" -> res.sendRedirect("/secretaire/dashboard");
-                case "ROLE_ELEVE"      -> res.sendRedirect("/eleve/paiement");
+                case "ROLE_ELEVE"      -> res.sendRedirect("/eleve/dashboard");
                 default                -> res.sendRedirect("/");
             }
         };
